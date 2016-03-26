@@ -1,6 +1,6 @@
 <?php 
 /**
- * 此文件用于cli模式运行
+ * 基础方法文件
  * 
  * 基于redis的任务队列，类似于python celery，可用rabbitMQ代替redis消费更可靠。
  * redis有list结构，它也有zset有序集合应为source的存在，使zset有了无限可能
@@ -8,17 +8,18 @@
  **/
 defined('__URL__') or define('__URL__',dirname(__FILE__).DIRECTORY_SEPARATOR); 
 include_once(__URL__.'config.php');
-global $config;
-$config = $conf;
+include_once(__URL__.'redisQueue.php');
+include_once(__URL__.'func.php');
 
-class celery{
-	
-	private $queue_key = 'celery_startup_zset';
+global $conf;
+$conf = $config;
+
+class parsley{
 	
 	public function redis_conn(){
-		global $config;
+		global $conf;
 		global $redis;
-		$r = $config['redis'];
+		$r = $conf['redis'];
 		$redis = new Redis();
 		$redis->connect($r['host'],$r['port'],$r['db']);
 	}
@@ -30,7 +31,7 @@ class celery{
 	 * @return boolean
 	 */	
 	public function apply_async($queue, $args=array()){
-		global $config;
+		global $conf;
 		
 		if(empty($queue)){
 			return false;
@@ -44,10 +45,10 @@ class celery{
 		$data = json_encode($arr);
 
 		# push redis zset
-		$r = $config['redis'];
+		$r = $conf['redis'];
 		$redis = new Redis();
 		$redis->connect($r['host'],$r['port'],$r['db']);
-		$redis->zadd($this->queue_key , $key, $data);
+		$redis->zadd($conf['queue_key'] , $key, $data);
 		return true;
 	}
 	
@@ -55,44 +56,46 @@ class celery{
 	 * 消费队列数据
 	 */
 	public function digestion_queue_data(){
-		global $config;
+		global $conf;
 		
-		$r = $config['redis'];
-		$redis = new Redis();
-		$redis->connect($r['host'],$r['port'],$r['db']);
+		$redis = new redisQueue();
 		
-// 		while (1){
+		while (1){
+			/**
 			try {
 				$redis->ping();
 			}catch(Exception $e){		
-				$r = $config['redis'];
+				$r = $conf['redis'];
 				$redis = new Redis();
 				$redis->connect($r['host'],$r['port'],$r['db']);
+			}**/
+			try {
+				$json = $redis->zlPop($conf['queue_key']);
+			}catch (Exception $e){
+				$redis = new redisQueue();
+				$json = $redis->zlPop($conf['queue_key']);
 			}
 			
-			$redis->multi();
-// 			$redis->watch($this->queue_key);
-// 			$json = $redis->zRange($this->queue_key, 0, 0);
-// 			$redis->zrem($this->queue_key, $json[0]);
-// 			$redis->exec();
-			$json = $redis->lPop($this->queue_key);
+			if(!isset($json)){
+				break;
+			}
 			
-			var_dump($json);
-			
-// 			exit;
-			
-			$data = json_decode($json[0],true);
-			$json = null;
-// 			print_r($data);
+			$data = json_decode($json,true);
+			if (empty($data['fun'])) {
+				break;
+			}
 			
 			//执行
 			$ret = $this->call_func($data['fun'], $data['args']);
-			if (!$ret) {
+			if ($ret==false) {
 				#消费失败 数据回归队列（头部、尾部）
-				$redis->zadd($this->queue_key , $data['key'], $json);
+				$redis->zadd($conf['queue_key'] , $data['key']+100000, $json);
 			}
+			$json = null;
 			$data = null;
-// 		}
+			
+			$this->setLog(__URL__.$conf['logs'].'log.log',date('Y-m-d H:i:s').",执行:{$json},{$ret}");
+		}
 	}
 	
 	/**
@@ -101,32 +104,27 @@ class celery{
 	 * @param unknown $args  方法参数
 	 * @return mixed|boolean 
 	 */
-	public function call_func($queue, $args=array()){		
+	public function call_func($queue, $args=array()){
+		$ex = array();
 		try {
+			$ex = explode('.',$queue);
+			if (count(ex)>1) {
+				return call_user_func_array(array($ex[0],$ex[1]), $args);
+			}
 			return call_user_func_array($queue, $args);
 		}catch(Exception $e){
 			return false;
 		}
 	}
+	
+	public function setLog($file,$msg){
+		$myfile = @fopen($file, "a+");
+		@fwrite($myfile, $msg."\r\n");
+		@fclose($myfile);
+	}
 }
 
-function test($a,$b){
-	$myfile = fopen("testfile.txt", "a+");
-	fwrite($myfile, $a.'=='.$b);
-	fclose($myfile);
-}
 
-//run 
-//开启进程数量
-$processNo = 5;
 
-$on_out = system('ps -ef | grep "startup.php" | grep -v "grep" | wc -l',$out);
-if (intval(trim($on_out)) > ($processNo+1)){
-	exit('error on start!');
-}
 
-// phpinfo();
-
-$st = new celery();
-$st->digestion_queue_data();
 
