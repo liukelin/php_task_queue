@@ -91,10 +91,10 @@ class parsley{
 				#消费失败 数据回归队列（头部、尾部）
 				$redis->zadd($conf['queue_key'] , $data['key']+100000, $json);
 			}
-			$json = null;
-			$data = null;
 			
 			$this->setLog(__URL__.$conf['logs'].'log.log',date('Y-m-d H:i:s').",执行:{$json},{$ret}");
+			$json = null;
+			$data = null;
 		}
 	}
 	
@@ -108,7 +108,7 @@ class parsley{
 		$ex = array();
 		try {
 			$ex = explode('.',$queue);
-			if (count(ex)>1) {
+			if (count($ex)>1) {
 				return call_user_func_array(array($ex[0],$ex[1]), $args);
 			}
 			return call_user_func_array($queue, $args);
