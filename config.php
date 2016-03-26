@@ -10,7 +10,7 @@ $config = array(
 			'port'=>'6379', 
 			'db'=>'0'
 	),
-	'queue_key'=>'celery_startup_zset',
-	'logs'=>'log/',
-	'process'=>5,
+	'queue_key'=>'celery_startup_zset',//redis 队列key
+	'logs'=>'logs/',
+	'process'=>5,//进程数
 );
