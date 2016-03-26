@@ -94,24 +94,21 @@ class redisQueue{
 			return false;
 		}
 		
-		$myCheckKey = microtime(true)*10000;
+		$myCheckKey = microtime(true)*10000;//唯一key(可使用更严谨的生成规则，比如:redis的incr)
 		$k = $element[0].'_check';
 		$checkKey = $redis->get($k);
 		
-		print_r($checkKey.'#'.$myCheckKey);
-		
 		if (empty($checkKey) || $myCheckKey == $checkKey) {
-			
-			$redis->setex($k, 10, $myCheckKey);
+			$redis->setex($k, 10, $myCheckKey);//写入key并且设置过期时间
 			$redis->watch($k);//监控锁
 			$redis->multi();
 			$redis->zRem($zset, $element[0]);
 			if($redis->exec()){
-				return $element[0];//返回数据
+				return $element[0];
 			}
 			//return false;
 		}
-		//重新获取
+		//重新获取（期待queue top 1已消费）
 		return $this->zsetPopCheck($zset,$position);//$position = 2
 	}
 }
