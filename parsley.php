@@ -61,14 +61,15 @@ class parsley{
 		$redis = new redisQueue();
 		
 		while (1){
-			/**
-			try {
-				$redis->ping();
-			}catch(Exception $e){		
-				$r = $conf['redis'];
-				$redis = new Redis();
-				$redis->connect($r['host'],$r['port'],$r['db']);
-			}**/
+// 			/**
+// 			try {
+// 				$redis->ping();
+// 			}catch(Exception $e){		
+// 				$r = $conf['redis'];
+// 				$redis = new Redis();
+// 				$redis->connect($r['host'],$r['port'],$r['db']);
+// 			}
+// 			**/
 			try {
 				$json = $redis->zlPop($conf['queue_key']);
 			}catch (Exception $e){
