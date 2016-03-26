@@ -11,7 +11,7 @@ $conf = $config;
 
 function test($a,$b){
 	$myfile = fopen("testfile.txt", "a+");
-	fwrite($myfile, "{$a}=={$b}\r\n");
+	fwrite($myfile, date('Y-m-d H:i:s').",{$a}=={$b}\r\n");
 	fclose($myfile);
 	return true;
 }
