@@ -141,7 +141,7 @@ class redisQueue{
 	}
 	
 	/**
-	 * 方法2：使用写入标记key，获取可用元素 (轮询大大增加了时间消耗)
+	 * 方法2：使用写入标记key，获取可用元素
 	 * @param string $zset
 	 * @param int $position
 	 * @return string|json
