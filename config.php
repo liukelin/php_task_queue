@@ -4,6 +4,7 @@
  * 
  */
 @ini_set('date.timezone','Asia/Shanghai');
+@ini_set('default_socket_timeout', -1);
 defined('__URL__') or define('__URL__',dirname(__FILE__).DIRECTORY_SEPARATOR);
 
 $config = array(
