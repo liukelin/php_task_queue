@@ -136,7 +136,7 @@ class redisQueue{
 		if($redis->exec()){
 			return $element[0];
 		}
-		//key发生变化，重新获取(轮询大大增加了时间消耗)
+		//key发生变化，重新获取(轮询大大增加了时间消耗?)
 		return $this->zsetPop($zset, $position);
 	}
 	
@@ -147,6 +147,7 @@ class redisQueue{
 	 * @return string|json
 	 */
 	private function zsetPopCheck($zset, $position){
+		//get queue top 1
 		try {
 			$element = $this->redis->zRange($zset, $position, $position);
 		}catch (Exception $e){
@@ -157,22 +158,22 @@ class redisQueue{
 		if (!isset($element[0])) {
 			return null;
 		}
-		
-		$myCheckKey = (microtime(true)*10000).rand(1000,9999);//唯一key(可使用更严谨的生成规则，比如:redis的incr)
+		//唯一key(可使用更严谨的生成规则，比如:redis的incr)
+		$myCheckKey = (microtime(true)*10000).rand(1000,9999);
 		$k = $element[0].'_check';
 		$checkKey = $redis->get($k);
 		
 		if (empty($checkKey) || $myCheckKey == $checkKey) {
-			$redis->setex($k, 10, $myCheckKey);//写入key并且设置过期时间
+			$redis->setex($k, 10, $myCheckKey);
 			$redis->watch($k);//监控锁
 			$redis->multi();
 			$redis->zRem($zset, $element[0]);
 			if($redis->exec()){
 				return $element[0];
 			}
-			//return false;
+			//return null;
 		}
-		//重新获取（期待queue top1已消费,获取新的top1）
+		//重新获取（期待queue top1已消费,获取新的top1,或多个进程抢夺？）
 		return $this->zsetPopCheck($zset,$position);//$position = 2
 	}
 }

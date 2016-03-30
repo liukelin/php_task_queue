@@ -16,14 +16,6 @@ $conf = $config;
 
 class parsley{
 	
-	public function redis_conn(){
-		global $conf;
-		global $redis;
-		$r = $conf['redis'];
-		$redis = new Redis();
-		$redis->connect($r['host'],$r['port'],$r['db']);
-	}
-	
 	/**
 	 * 将执行任务写入队列
 	 * @param unknown $queue func.php方法名
@@ -113,7 +105,8 @@ class parsley{
 		try {
 			$ex = explode('.',$queue);
 			if (count($ex)>1) {
-				return call_user_func_array(array($ex[0],$ex[1]), $args);
+				$c = new $ex[0];
+				return call_user_func_array(array($c,$ex[1]), $args);
 			}
 			return call_user_func_array($queue, $args);
 		}catch(Exception $e){
