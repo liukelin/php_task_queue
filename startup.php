@@ -3,6 +3,8 @@
  * 此文件用于cli模式运行
  * 设置crontab 或者使用 supervisor作为进程管理
  * crontab: * * * * * /usr/bin/php startup.php
+ * 
+ * @author: liukelin 314566990@qq.com
  */
 @ini_set('date.timezone','Asia/Shanghai');
 include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'config.php');

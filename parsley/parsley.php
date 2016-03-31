@@ -2,10 +2,9 @@
 /**
  * 基础方法文件
  * 
- * 
  * 基于redis的任务队列，类似于python celery，可用rabbitMQ代替redis消费更可靠。
  * redis有list结构，它也有zset有序集合应为source的存在，使zset有了无限可能
- * liukelin 
+ * @author: liukelin 314566990@qq.com
  **/
 include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'../config.php');
 include_once(__URL__.'parsley/redisQueue.php');

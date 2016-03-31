@@ -2,8 +2,9 @@
 /**
  * redis 队列数据操作类
  * 模拟实现zset的 lpop rpop
- * redis有list结构，它也有zset有序集合应为source的存在，使zset有了无限可能（插队）, 虽然对于此场景list结构的pop功能很好用，但还是使用灵活性更高的zset
- * 
+ * redis有list结构，它也有zset有序集合应为source的存在，使zset有了无限可能（插队）, 
+ * 虽然对于此场景list结构的pop功能很好用，但还是使用灵活性更高的zset
+ * @author: liukelin 314566990@qq.com
  */
 include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'../config.php');
 global $conf;
@@ -15,7 +16,11 @@ class redisQueue{
 	private $redis;
 	
 	public function __construct(){
-		$this->redisConn();
+		if ($this->redis) {
+			//
+		}else {
+			$this->redisConn();
+		}
 	}
 	
 	private function redisConn(){
@@ -110,6 +115,7 @@ class redisQueue{
 	}
 	
 	/**
+	 * 模拟zset pop
 	 * 方法1：使用watch监控key，获取元素 (轮询大大增加了时间消耗)
 	 * @param string $zset
 	 * @param int $position
@@ -130,7 +136,6 @@ class redisQueue{
 			return null;
 		}
 	
-		//若无变化返回数据
 		$redis->multi();
 		$redis->zRem($zset, $element[0]);
 		if($redis->exec()){
@@ -141,6 +146,7 @@ class redisQueue{
 	}
 	
 	/**
+	 * 模拟zset pop
 	 * 方法2：使用写入标记key，获取可用元素
 	 * @param string $zset
 	 * @param int $position
@@ -148,27 +154,28 @@ class redisQueue{
 	 */
 	private function zsetPopCheck($zset, $position){
 		//get queue top 1
+		//php7 不支持只获取 value 的zRange?
 		try {
 			$element = $this->redis->zRange($zset, $position, $position);
 		}catch (Exception $e){
 			$this->redisConn();
 			$element = $this->redis->zRange($zset, $position, $position);
 		}
-		$redis = $this->redis;
-		if (!isset($element[0])) {
+		
+		if (empty($element) || !isset($element[0])) {
 			return null;
 		}
 		//唯一key(可使用更严谨的生成规则，比如:redis的incr)
 		$myCheckKey = (microtime(true)*10000).rand(1000,9999);
 		$k = $element[0].'_check';
-		$checkKey = $redis->get($k);
+		$checkKey = $this->redis->get($k);
 		
 		if (empty($checkKey) || $myCheckKey == $checkKey) {
-			$redis->setex($k, 10, $myCheckKey);
-			$redis->watch($k);//监控锁
-			$redis->multi();
-			$redis->zRem($zset, $element[0]);
-			if($redis->exec()){
+			$this->redis->setex($k, 10, $myCheckKey);
+			$this->redis->watch($k);//监控锁
+			$this->redis->multi();
+			$this->redis->zRem($zset, $element[0]);
+			if($this->redis->exec()){
 				return $element[0];
 			}
 			//return null;
