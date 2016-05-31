@@ -6,7 +6,7 @@
  * @author: liukelin 314566990@qq.com
  */
 function helloWorld($a){
-	print_r('helloWorld:'.$a);
+	print_r("helloWorld:{$a}\r\n");
 }
 
 //普通函数形式
