@@ -6,10 +6,6 @@
 
 include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'../parsley/parsley.php');
 
-function helloWorld($a){
-	print_r('helloWorld:'.$a);
-}
-
 //创建任务
 $c = new parsley();
 for ($i=0; $i<=110000; $i++){

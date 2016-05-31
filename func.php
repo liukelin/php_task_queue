@@ -5,7 +5,9 @@
  * 
  * @author: liukelin 314566990@qq.com
  */
-
+function helloWorld($a){
+	print_r('helloWorld:'.$a);
+}
 
 //普通函数形式
 function test($a,$b){
