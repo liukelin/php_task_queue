@@ -6,13 +6,12 @@
 
 include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'../parsley/parsley.php');
 
-
-function test($i){
-	print_r('hello:'.$i);
+function helloWorld($a){
+	print_r('helloWorld:'.$a);
 }
 
 //创建任务
 $c = new parsley();
 for ($i=0; $i<=110000; $i++){
-	$c->apply_async('test',array($i));
+	$c->apply_async('helloWorld',array($i));
 }

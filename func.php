@@ -6,6 +6,7 @@
  * @author: liukelin 314566990@qq.com
  */
 
+
 //普通函数形式
 function test($a,$b){
 	$myfile = fopen("testfile.txt", "a+");
@@ -23,3 +24,4 @@ class test{
 		return true;
 	}
 }
+
