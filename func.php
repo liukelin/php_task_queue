@@ -11,7 +11,7 @@ function test($a,$b){
 	$myfile = fopen("testfile.txt", "a+");
 	fwrite($myfile, date('Y-m-d H:i:s').",test,{$a}=={$b}\r\n");
 	fclose($myfile);
-	return 1;
+	return true;
 }
 
 //可以为类形式
@@ -20,6 +20,6 @@ class test{
 		$myfile = fopen("testfile.txt", "a+");
 		fwrite($myfile, date('Y-m-d H:i:s').",test.test,{$a}=={$b}\r\n");
 		fclose($myfile);
-		return 1;
+		return true;
 	}
 }

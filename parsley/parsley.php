@@ -70,6 +70,7 @@ class parsley{
 			if ($ret==false) {
 				//消费失败计数
 				$incr = $redis->incr($element.'_error_no');
+				
 				if($conf['again']>=0 && $conf['again']>=$incr){
 					/**
 					 *消费失败 数据回归队列top100位置（头部/尾部/top2）
