@@ -1,5 +1,20 @@
 # 一个用PHP开发的，使用redis的php任务队列
 
+注： 队列的生产、
+	
+	消费（拉取方式）、
+	
+	消费确认、
+	
+	消费失败回队（回队策略）、
+	
+	多端生产、
+
+	多段消费（避免资源竞争）
+
+	end...
+
+
 	1.配置config.php
 
 	2.将/parsley/parsley.php 引入到你的项目
@@ -13,3 +28,6 @@
 	include_once('parsley/parsley.php');
 	$c = new parsley();
 	$c->apply_async('test',array($i,$i));
+
+
+	end...
