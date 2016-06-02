@@ -14,7 +14,7 @@ $config = array(
 			'port'=>6379, 
 			'db'=>0
 		),
-	//redis 队列key
+	//redis 默认队列key
 	'queue_key'=>'celery_startup_zset',
 	//进程数
 	'process'=>5,
